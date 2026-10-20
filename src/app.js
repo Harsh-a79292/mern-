@@ -16,10 +16,23 @@ app.use(cookieParser());
 
 // Routes import
 import userRouter from './routes/user.routes.js';
-import videoRouter from './routes/video.routes.js'; // <-- Yeh line add karein
+import videoRouter from './routes/video.routes.js';
+import likeRouter from './routes/like.routes.js';
+
+// routes declaration
+app.use("/api/v1/likes", likeRouter);
+import commentRouter from "./routes/comment.routes.js";
+
+
+// routes declaration
+app.use("/api/v1/comments", commentRouter);
+import subscriptionRouter from "./routes/subscription.routes.js";
+
+// routes declaration
+app.use("/api/v1/subscriptions", subscriptionRouter);
 
 // Routes declaration
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/videos", videoRouter); // <-- Yeh line add karein
+app.use("/api/v1/videos", videoRouter);
 
 export { app };

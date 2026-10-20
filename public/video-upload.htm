@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload & Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 30px;
+        }
+        .form-container {
+            max-width: 450px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 0 auto 20px auto;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .upload-btn {
+            background-color: #28a745;
+        }
+        .upload-btn:hover {
+            background-color: #218838;
+        }
+        .msg {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 1. Quick Login Section (Taki Browser me Cookie Save ho sake) -->
+<div class="form-container">
+    <h2>1. First Login Here</h2>
+    <form id="loginForm">
+        <div class="input-group">
+            <label>Email or Username</label>
+            <input type="text" name="email" placeholder="Enter your email" required autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required autocomplete="off">
+        </div>
+        <button type="submit">Login to Get Cookie</button>
+    </form>
+    <div id="login-msg" class="msg"></div>
+</div>
+
+<!-- 2. Video Upload Section -->
+<div class="form-container">
+    <h2>2. Upload Video</h2>
+    <form id="videoUploadForm">
+        <div class="input-group">
+            <label>Video Title</label>
+            <input type="text" name="title" placeholder="Enter video title" required autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Description</label>
+            <textarea name="description" rows="3" placeholder="Enter video description" required></textarea>
+        </div>
+        <div class="input-group">
+            <label>Video File (.mp4, .mkv)</label>
+            <input type="file" name="videoFile" accept="video/*" required>
+        </div>
+        <div class="input-group">
+            <label>Thumbnail Image</label>
+            <input type="file" name="thumbnail" accept="image/*" required>
+        </div>
+        <button type="submit" class="upload-btn">Upload Video</button>
+    </form>
+    <div id="upload-msg" class="msg"></div>
+</div>
+
+<script>
+    // --- Login Script ---
+    const loginForm = document.getElementById('loginForm');
+    const loginMsg = document.getElementById('login-msg');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginMsg.style.color = "blue";
+        loginMsg.innerText = "Logging in...";
+
+        const formData = new FormData(loginForm);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Cookie browser me save karne ke liye zaroori hai
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                loginMsg.style.color = "green";
+                loginMsg.innerText = "Login Successful! 🎉 Cookie saved in browser.";
+            } else {
+                loginMsg.style.color = "red";
+                loginMsg.innerText = "Error: " + (result.message || "Invalid credentials");
+            }
+        } catch (error) {
+            loginMsg.style.color = "red";
+            loginMsg.innerText = "Network Error! Server is not responding.";
+        }
+    });
+
+    // --- Video Upload Script ---
+    const videoForm = document.getElementById('videoUploadForm');
+    const uploadMsg = document.getElementById('upload-msg');
+
+    videoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        uploadMsg.style.color = "blue";
+        uploadMsg.innerText = "Uploading video to Cloudinary... Please wait ⏳";
+
+        const formData = new FormData(videoForm);
+
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/videos', {
+                method: 'POST',
+                credentials: 'include', // Login cookie sath bhejne ke liye zaroori hai
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                uploadMsg.style.color = "green";
+                uploadMsg.innerText = "Video Uploaded Successfully! 🎉";
+                console.log("Success:", result);
+            } else {
+                uploadMsg.style.color = "red";
+                uploadMsg.innerText = "Error: " + (result.message || "Something went wrong");
+                console.error("Error:", result);
+            }
+        } catch (error) {
+            uploadMsg.style.color = "red";
+            uploadMsg.innerText = "Network Error! Server is not responding.";
+            console.error("Network Error:", error);
+        }
+    });
+</script>
+
+</body>
+</html>

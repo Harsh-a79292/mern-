@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video API Testing Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        .section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #eee; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 200px; }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Video API Testing Dashboard</h1>
+
+    <!-- 1. Get All Videos Section -->
+    <div class="section">
+        <h2>Get All Videos</h2>
+        <button onclick="fetchAllVideos()">Fetch All Videos</button>
+        <pre id="allVideosResult">Result will appear here...</pre>
+    </div>
+
+    <!-- 2. Get Video By ID Section -->
+    <div class="section">
+        <h2>Get Video By ID</h2>
+        <input type="text" id="videoIdInput" placeholder="Enter Video ID">
+        <button onclick="fetchVideoById()">Fetch Video</button>
+        <pre id="singleVideoResult">Result will appear here...</pre>
+    </div>
+
+    <!-- 3. Delete Video Section -->
+    <div class="section">
+        <h2>Delete Video</h2>
+        <input type="text" id="deleteIdInput" placeholder="Enter Video ID to Delete">
+        <button onclick="deleteVideo()" style="background: #dc3545;">Delete Video</button>
+        <pre id="deleteResult">Result will appear here...</pre>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8000/api/v1/videos';
+
+        // 1. Fetch All Videos
+        async function fetchAllVideos() {
+            try {
+                const response = await fetch(BASE_URL);
+                const result = await response.json();
+                document.getElementById('allVideosResult').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('allVideosResult').innerText = "Error: " + error.message;
+            }
+        }
+
+        // 2. Fetch Video By ID
+        async function fetchVideoById() {
+            const videoId = document.getElementById('videoIdInput').value.trim();
+            if (!videoId) {
+                alert("Pehle Video ID dalein!");
+                return;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/${videoId}`);
+                const result = await response.json();
+                document.getElementById('singleVideoResult').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('singleVideoResult').innerText = "Error: " + error.message;
+            }
+        }
+
+        // 3. Delete Video
+        // 3. Delete Video
+        async function deleteVideo() {
+            const videoId = document.getElementById('deleteIdInput').value.trim();
+            if (!videoId) {
+                alert("Pehle Video ID dalein!");
+                return;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/${videoId}`, {
+                    method: 'DELETE',
+                    credentials: 'include' // <--- Yeh zaroori hai cookie/token bhejne ke liye!
+                });
+                
+                // Check karein ki response JSON hai ya nahi
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const result = await response.json();
+                    document.getElementById('deleteResult').innerText = JSON.stringify(result, null, 2);
+                } else {
+                    const text = await response.text();
+                    document.getElementById('deleteResult').innerText = "Error (Not JSON): " + text;
+                }
+            } catch (error) {
+                document.getElementById('deleteResult').innerText = "Error: " + error.message;
+            }
+        }
+    </script>
+
+</body>
+</html>
