@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
     {
@@ -25,46 +25,39 @@ const userSchema = new Schema(
             trim: true,
             index: true
         },
-        avatar: {
-            type: String, // Cloudinary URL
-            required: true, 
-        },
-        coverImage: {
-            type: String, // Cloudinary URL
-        },
-        watchHistory: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Video"
-            }
-        ],
         password: {
             type: String,
-            required: [true, 'Password is required']
+            required: [true, "Password is required"]
+        },
+        avatar: {
+            type: String, // Cloudinary URL
+            required: true
+        },
+        coverImage: {
+            type: String // Cloudinary URL
         },
         refreshToken: {
             type: String
         }
     },
-    { 
-        timestamps: true 
+    {
+        timestamps: true
     }
 );
 
-// 1. Password ko save karne se pehle hash karna (Pre-save hook)
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-});
+// Password ko database me save karne se pehle hash karna
+// Password ko database me save karne se pehle hash karna
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
 
-// 2. Custom method: Password check karne ke liye
+    this.password = await bcrypt.hash(this.password, 10);
+});
+// Password check karne ka custom method
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
-// 3. Custom method: Access Token generate karne ke liye
+// Access Token generate karne ka method
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
@@ -80,7 +73,7 @@ userSchema.methods.generateAccessToken = function () {
     );
 };
 
-// 4. Custom method: Refresh Token generate karne ke liye
+// Refresh Token generate karne ka method
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {

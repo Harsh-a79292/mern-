@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 30px;
+        }
+        .form-container {
+            max-width: 400px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #response-msg {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Register User</h2>
+    <form id="registerForm">
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" name="fullName" placeholder="Enter full name" required autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter unique email" required autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter unique username" required autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Avatar (Required Image)</label>
+            <input type="file" name="avatar" id="avatarInput" accept="image/*" required>
+        </div>
+        <div class="input-group">
+            <label>Cover Image (Optional)</label>
+            <input type="file" name="coverImage" id="coverImageInput" accept="image/*">
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <div id="response-msg"></div>
+</div>
+
+<script>
+    const form = document.getElementById('registerForm');
+    const msgDiv = document.getElementById('response-msg');
+
+    form.addEventListener('submit async', async (e) => {
+        // Page reload hone se rokein
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msgDiv.style.color = "blue";
+        msgDiv.innerText = "Registering...";
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/users/register', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                msgDiv.style.color = "green";
+                msgDiv.innerText = "User Registered Successfully! 🎉";
+                console.log("Success:", result);
+            } else {
+                msgDiv.style.color = "red";
+                msgDiv.innerText = "Error: " + (result.message || "Something went wrong");
+                console.error("Error:", result);
+            }
+        } catch (error) {
+            msgDiv.style.color = "red";
+            msgDiv.innerText = "Network Error! Server is not responding.";
+            console.error("Network Error:", error);
+        }
+    });
+</script>
+
+</body>
+</html>

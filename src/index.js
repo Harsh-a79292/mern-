@@ -1,13 +1,9 @@
+import 'dotenv/config'; // Yeh line sabse upar honi chahiye!
 import dns from "node:dns";
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-import dotenv from "dotenv";
 import connectDB from "./db/index.js";
-import { app } from "./app.js"; // 1. Yeh import yahan add karna hai
-
-dotenv.config({ path: "./.env" });
-
-// 2. Yahan jo akela connectDB(); likha tha, use hata diya hai
+import { app } from "./app.js";
 
 connectDB()
 .then(() => {
